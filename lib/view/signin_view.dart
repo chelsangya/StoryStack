@@ -31,10 +31,11 @@ class _SigninViewState extends State<SigninView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-                  Center(
+                  Padding(
+                    padding: const EdgeInsets.all(20),
                     child: Image.asset(
                       'assets/images/logob.png',
-                      width: 200,
+                      width: 320,
                       height: 150,
                     ),
                   ),
@@ -141,10 +142,11 @@ class _SigninViewState extends State<SigninView> {
                         width: 400,
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.of(context).pushNamed('/select');
+                            Navigator.of(context).pushNamed('/home');
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF0B2B3D),
+                            backgroundColor:
+                                const Color.fromRGBO(0, 128, 128, 1),
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 50, vertical: 10),
                             shape: RoundedRectangleBorder(
@@ -152,7 +154,7 @@ class _SigninViewState extends State<SigninView> {
                             ),
                           ),
                           child: const Text(
-                            'SIGN IN',
+                            'LOGIN',
                             style: TextStyle(
                                 color: Color(0xFFFFFBFF),
                                 fontSize: 20,
@@ -216,21 +218,21 @@ class _SigninViewState extends State<SigninView> {
                         ],
                       ),
                       const SizedBox(height: 10),
-                      ElevatedButton.icon(
-                        onPressed: () {},
-                        icon: const Icon(Icons.face),
-                        label: const Text('Sign in with Face ID'),
-                        style: ElevatedButton.styleFrom(
-                          shadowColor: const Color(0xFF0B2B3D),
-                          side: const BorderSide(color: Color(0xFF0B2B3D)),
-                          foregroundColor: Colors.black,
-                          backgroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
+                      // ElevatedButton.icon(
+                      //   onPressed: () {},
+                      //   icon: const Icon(Icons.face),
+                      //   label: const Text('Sign in with Face ID'),
+                      //   style: ElevatedButton.styleFrom(
+                      //     shadowColor: const Color(0xFF0B2B3D),
+                      //     side: const BorderSide(color: Color(0xFF0B2B3D)),
+                      //     foregroundColor: Colors.black,
+                      //     backgroundColor: Colors.white,
+                      //     shape: RoundedRectangleBorder(
+                      //       borderRadius: BorderRadius.circular(30),
+                      //     ),
+                      //   ),
+                      // ),
+                      // const SizedBox(width: 10),
                       ElevatedButton.icon(
                         onPressed: () {},
                         icon: const Icon(Icons.g_mobiledata),
@@ -256,3 +258,6 @@ class _SigninViewState extends State<SigninView> {
     );
   }
 }
+
+
+

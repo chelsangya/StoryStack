@@ -1,3 +1,4 @@
+import 'package:story_stack/features/primary/presentation/view/primary_view.dart';
 import 'package:story_stack/view/avatar_selection_view.dart';
 import 'package:story_stack/view/select_view.dart';
 import 'package:story_stack/view/signin_view.dart';
@@ -21,7 +22,7 @@ class AppRoute {
       avatarSelectionRoute: (context) => const AvatarSelectionView(),
       splashRoute: (context) => const SplashView(),
       selectRoute: (context) => const SelectView(),
-      // homeRoute: (context) => HomeView(),
+      homeRoute: (context) => const PrimaryView(),
       // profileRoute: (context) => ProfileView(),
       // settingsRoute: (context) => SettingsView(),
     };

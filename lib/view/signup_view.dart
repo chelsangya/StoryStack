@@ -36,11 +36,12 @@ class _SigninViewState extends State<SignupView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-                  Center(
+                  Padding(
+                    padding: const EdgeInsets.all(20),
                     child: Image.asset(
                       'assets/images/logob.png',
-                      width: 200,
-                      height: 150,
+                      width: 320,
+                      height: 130,
                     ),
                   ),
                   const Text(
@@ -61,9 +62,12 @@ class _SigninViewState extends State<SignupView> {
                         decoration: const InputDecoration(
                           hintText: 'Email',
                           hintStyle: TextStyle(color: Colors.black),
-                          prefixIcon: Icon(
-                            Icons.mail,
-                            color: Colors.black,
+                          prefixIcon: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Icon(
+                              Icons.mail,
+                              color: Colors.black,
+                            ),
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.all(
@@ -81,6 +85,7 @@ class _SigninViewState extends State<SignupView> {
                           prefixIcon: const Icon(
                             Icons.lock,
                             color: Colors.black,
+                            size: 30,
                           ),
                           suffixIcon: IconButton(
                             icon: Icon(
@@ -135,7 +140,8 @@ class _SigninViewState extends State<SignupView> {
                                 .pushNamed('/avatar-selection');
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF0B2B3D),
+                            backgroundColor:
+                                const Color.fromRGBO(0, 128, 128, 1),
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 50, vertical: 10),
                             shape: RoundedRectangleBorder(
@@ -143,7 +149,7 @@ class _SigninViewState extends State<SignupView> {
                             ),
                           ),
                           child: const Text(
-                            'SIGN UP',
+                            'REGISTER',
                             style: TextStyle(
                                 color: Color(0xFFFFFBFF),
                                 fontSize: 20,

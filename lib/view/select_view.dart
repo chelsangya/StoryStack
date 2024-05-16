@@ -9,31 +9,25 @@ class SelectView extends StatelessWidget {
       body: Stack(
         children: [
           Container(
-            color: Colors.blue.shade900,
-            child: Image.asset(
-              'assets/images/start.png',
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              fit: BoxFit.cover,
-            ),
+            color: const Color.fromRGBO(0, 128, 128, 1),
           ),
-          Container(
-            constraints: const BoxConstraints.expand(),
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.5),
-            ),
-          ),
+          // Container(
+          //   constraints: const BoxConstraints.expand(),
+          //   decoration: BoxDecoration(
+          //     color: Colors.black.withOpacity(0.3),
+          //   ),
+          // ),
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 20),
+                  // const SizedBox(height: 10),
                   Image.asset(
                     'assets/images/logo.png',
-                    width: 200,
-                    height: 200,
+                    width: 400,
+                    height: 400,
                   ),
                   const SizedBox(height: 20),
                   Padding(
@@ -46,35 +40,11 @@ class SelectView extends StatelessWidget {
                           width: 400,
                           child: ElevatedButton(
                             onPressed: () {
-                              Navigator.of(context).pushNamed('/signup');
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 50, vertical: 10),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                            ),
-                            child: const Text(
-                              'REGISTER',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF0B2B3D),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        SizedBox(
-                          width: 400,
-                          child: ElevatedButton(
-                            onPressed: () {
                               Navigator.of(context).pushNamed('/signin');
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
+                              backgroundColor:
+                                  const Color.fromRGBO(250, 208, 44, 1),
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 50, vertical: 10),
                               shape: RoundedRectangleBorder(
@@ -86,7 +56,39 @@ class SelectView extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: Color(0xFF0B2B3D),
+                                color: Color.fromRGBO(0, 128, 128, 1),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          width: 400,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context).pushNamed('/signup');
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromRGBO(0, 128, 128, 1),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 50, vertical: 10),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              // border
+                              side: const BorderSide(
+                                width: 3,
+                                color: Color.fromRGBO(250, 208, 44, 1),
+                              ),
+                            ),
+                            child: const Text(
+                              'REGISTER',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                // color: Color.fromRGBO(0, 128, 128, 1),
+                                color: Color.fromRGBO(250, 208, 44, 1),
                               ),
                             ),
                           ),
