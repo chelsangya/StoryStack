@@ -63,8 +63,10 @@ class _SigninViewState extends State<SigninView> {
                       const SizedBox(height: 20),
                       TextFormField(
                         decoration: const InputDecoration(
-                          hintText: 'Email',
-                          hintStyle: TextStyle(color: Colors.black),
+                          labelText: 'Email',
+                          hintText: 'johndoe@gmail.com',
+                          hintStyle: TextStyle(color: Colors.grey),
+                          labelStyle: TextStyle(color: Colors.black),
                           prefixIcon: Icon(
                             Icons.mail,
                             color: Colors.black,
@@ -79,9 +81,10 @@ class _SigninViewState extends State<SigninView> {
                       const SizedBox(height: 20),
                       TextFormField(
                         decoration: InputDecoration(
-                          hintText: 'Password',
-                          hintStyle: const TextStyle(
-                              color: Color.fromRGBO(0, 0, 0, 1)),
+                          labelText: 'Password',
+                          hintText: '********',
+                          hintStyle: const TextStyle(color: Colors.grey),
+                          labelStyle: const TextStyle(color: Colors.black),
                           prefixIcon: const Icon(
                             Icons.lock,
                             color: Colors.black,
@@ -105,7 +108,7 @@ class _SigninViewState extends State<SigninView> {
                       ),
                       const SizedBox(height: 10),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: <Widget>[
                           Row(
                             children: <Widget>[
@@ -127,6 +130,7 @@ class _SigninViewState extends State<SigninView> {
                               ),
                             ],
                           ),
+                          const Spacer(),
                           TextButton(
                             onPressed: () {},
                             child: const Text(
@@ -142,6 +146,12 @@ class _SigninViewState extends State<SigninView> {
                         width: 400,
                         child: ElevatedButton(
                           onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Logging in...'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
                             Navigator.of(context).pushNamed('/home');
                           },
                           style: ElevatedButton.styleFrom(
@@ -200,7 +210,7 @@ class _SigninViewState extends State<SigninView> {
                             ),
                           ),
                           const Text(
-                            'Or sign in with',
+                            'Or login with',
                             style: TextStyle(color: Colors.black),
                           ),
                           Expanded(
@@ -258,6 +268,3 @@ class _SigninViewState extends State<SigninView> {
     );
   }
 }
-
-
-

@@ -60,14 +60,31 @@ class _SigninViewState extends State<SignupView> {
                       const SizedBox(height: 20),
                       TextFormField(
                         decoration: const InputDecoration(
-                          hintText: 'Email',
-                          hintStyle: TextStyle(color: Colors.black),
-                          prefixIcon: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Icon(
-                              Icons.mail,
-                              color: Colors.black,
-                            ),
+                          labelText: 'Email',
+                          hintText: 'johndoe@gmail.com',
+                          hintStyle: TextStyle(color: Colors.grey),
+                          labelStyle: TextStyle(color: Colors.black),
+                          prefixIcon: Icon(
+                            Icons.mail,
+                            color: Colors.black,
+                          ),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10),
+                              ),
+                              borderSide: BorderSide(color: Colors.green)),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        decoration: const InputDecoration(
+                          labelText: 'Phone',
+                          hintText: '9800000000',
+                          hintStyle: TextStyle(color: Colors.grey),
+                          labelStyle: TextStyle(color: Colors.black),
+                          prefixIcon: Icon(
+                            Icons.phone,
+                            color: Colors.black,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.all(
@@ -79,13 +96,14 @@ class _SigninViewState extends State<SignupView> {
                       const SizedBox(height: 20),
                       TextFormField(
                         decoration: InputDecoration(
-                          hintText: 'Password',
-                          hintStyle: const TextStyle(
+                          labelText: 'Password',
+                          hintText: '********',
+                          hintStyle: const TextStyle(color: Colors.grey),
+                          labelStyle: const TextStyle(
                               color: Color.fromRGBO(0, 0, 0, 1)),
                           prefixIcon: const Icon(
                             Icons.lock,
                             color: Colors.black,
-                            size: 30,
                           ),
                           suffixIcon: IconButton(
                             icon: Icon(
@@ -107,8 +125,10 @@ class _SigninViewState extends State<SignupView> {
                       const SizedBox(height: 20),
                       TextFormField(
                         decoration: InputDecoration(
-                          hintText: 'Confirm Password',
-                          hintStyle: const TextStyle(
+                          labelText: 'Confirm Password',
+                          hintText: '********',
+                          hintStyle: const TextStyle(color: Colors.grey),
+                          labelStyle: const TextStyle(
                               color: Color.fromRGBO(0, 0, 0, 1)),
                           prefixIcon: const Icon(
                             Icons.lock,

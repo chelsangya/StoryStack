@@ -45,9 +45,8 @@ class _SplashViewState extends State<SplashView>
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.asset(
-              'assets/images/start.png',
-              fit: BoxFit.cover,
+            Container(
+              color: const Color.fromRGBO(0, 128, 128, 1),
             ),
             Center(
               child: Image.asset(

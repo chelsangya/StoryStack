@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-AppBar myCustomAppBar(BuildContext context, String text) {
+AppBar myCustomAppBar(BuildContext context) {
   return AppBar(
     backgroundColor: const Color.fromRGBO(0, 128, 128, 1),
     foregroundColor: Colors.white,
@@ -11,7 +11,7 @@ AppBar myCustomAppBar(BuildContext context, String text) {
         IconButton(
           icon: const Icon(Icons.settings, color: Colors.white, size: 30),
           onPressed: () {
-            Scaffold.of(context).openDrawer();
+            Navigator.of(context).pushNamed('/settings');
           },
         ),
         const Spacer(),
@@ -26,7 +26,9 @@ AppBar myCustomAppBar(BuildContext context, String text) {
         const Spacer(),
         IconButton(
           icon: const Icon(Icons.forum, color: Colors.white, size: 30),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.of(context).pushNamed('/forum');
+          },
         ),
       ],
     ),

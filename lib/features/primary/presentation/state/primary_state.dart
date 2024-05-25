@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:story_stack/features/primary/presentation/view/discover_view.dart';
+import 'package:story_stack/view/profile_view.dart';
 import 'package:story_stack/view/select_view.dart';
 
 class PrimaryState {
@@ -21,9 +22,10 @@ class PrimaryState {
         // nannies = [],
         lstWidgets = [
           const DiscoverView(),
+
           const SelectView(),
           const SelectView(),
-          const SelectView(),
+          const ProfileView(),
 
           // const FavouritesView(),
           // const BookingsView(),

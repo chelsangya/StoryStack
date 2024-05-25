@@ -21,17 +21,23 @@ class _PrimaryViewState extends ConsumerState<PrimaryView> {
           bottomNavigationBar: SnakeNavigationBar.color(
             behaviour: SnakeBarBehaviour.floating,
             snakeShape: SnakeShape.indicator,
-            elevation: 10,
+            elevation: 5,
             selectedItemColor: const Color(0xFF0B2B3D),
-            unselectedItemColor: Colors.grey[800]!,
+            unselectedItemColor: Colors.grey[900]!,
             showSelectedLabels: true,
             showUnselectedLabels: true,
+            selectedLabelStyle: const TextStyle(
+              fontSize: 16,
+            ),
+            unselectedLabelStyle: const TextStyle(
+              fontSize: 14,
+            ),
             backgroundColor: Colors.white,
             shadowColor: Colors.grey,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(10),
             ),
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(5),
             currentIndex: primaryState.index,
             onTap: (index) {
               ref.read(primaryViewModelProvider.notifier).changeIndex(index);
@@ -40,24 +46,28 @@ class _PrimaryViewState extends ConsumerState<PrimaryView> {
               BottomNavigationBarItem(
                 icon: Icon(
                   Icons.explore,
+                  size: 25,
                 ),
                 label: 'Discover',
               ),
               BottomNavigationBarItem(
                 icon: Icon(
                   Icons.calendar_month,
+                  size: 25,
                 ),
                 label: 'Upcoming',
               ),
               BottomNavigationBarItem(
                 icon: Icon(
-                  Icons.list,
+                  Icons.list_alt,
+                  size: 25,
                 ),
                 label: 'Your List',
               ),
               BottomNavigationBarItem(
                 icon: Icon(
                   Icons.person,
+                  size: 25,
                 ),
                 label: 'Profile',
               ),

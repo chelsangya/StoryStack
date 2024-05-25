@@ -1,13 +1,13 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:story_stack/config/constants/hive_table_constant.dart';
+// import 'package:path_provider/path_provider.dart';
+// import 'package:story_stack/config/constants/hive_table_constant.dart';
 
 final hiveServiceProvider = Provider<HiveService>(
   (ref) => HiveService(),
 );
 class HiveService{
   Future<void> init() async {
-    var directory = await getApplicationDocumentsDirectory();
+    // var directory = await getApplicationDocumentsDirectory();
     // Hive.init(directory.path);
     // Hive.registerAdapter(BookHiveModelAdapter());
   }
