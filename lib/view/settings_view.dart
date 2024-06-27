@@ -21,9 +21,11 @@ class _SettingsViewState extends State<SettingsView> {
             children: [
               ListTile(
                 leading: Icon(
-                  Icons.notifications,
-                  size: 30,
-                  color: Colors.yellow[900],
+                  notifications
+                      ? Icons.notifications_active
+                      : Icons.notifications_off,
+                  size: 35,
+                  color: notifications ? Colors.green : Colors.red,
                 ),
                 title: const Text(
                   'Notifications',
@@ -31,14 +33,25 @@ class _SettingsViewState extends State<SettingsView> {
                     fontSize: 22,
                   ),
                 ),
-                trailing: Switch(
-                  value: notifications, 
-                  onChanged: (value) {
-                    setState(() {
-                      notifications =
-                          value; 
-                    });
-                  },
+                trailing: Transform.scale(
+                  scale: 1.2,
+                  child: Switch(
+                    thumbColor: MaterialStateProperty.all(Colors.white),
+                    activeTrackColor: Colors.green,
+                    inactiveTrackColor: Colors.red,
+                    thumbIcon: MaterialStateProperty.all(
+                      Icon(
+                        Icons.notifications_active,
+                        color: Colors.yellow[900],
+                      ),
+                    ),
+                    value: notifications,
+                    onChanged: (value) {
+                      setState(() {
+                        notifications = value;
+                      });
+                    },
+                  ),
                 ),
               ),
               const SizedBox(

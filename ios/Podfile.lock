@@ -4,6 +4,8 @@ PODS:
     - Flutter
   - local_auth_darwin (0.0.1):
     - Flutter
+  - local_auth_ios_credentials (0.0.1):
+    - Flutter
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -12,6 +14,7 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - local_auth_darwin (from `.symlinks/plugins/local_auth_darwin/darwin`)
+  - local_auth_ios_credentials (from `.symlinks/plugins/local_auth_ios_credentials/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
 
 EXTERNAL SOURCES:
@@ -21,14 +24,17 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
   local_auth_darwin:
     :path: ".symlinks/plugins/local_auth_darwin/darwin"
+  local_auth_ios_credentials:
+    :path: ".symlinks/plugins/local_auth_ios_credentials/ios"
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
 
 SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_secure_storage: 23fc622d89d073675f2eaa109381aefbcf5a49be
-  local_auth_darwin: c7e464000a6a89e952235699e32b329457608d98
-  path_provider_foundation: 3784922295ac71e43754bd15e0653ccfd36a147c
+  local_auth_darwin: 4d56c90c2683319835a61274b57620df9c4520ab
+  local_auth_ios_credentials: 5e21b73a9a505a1151facac683239de5f4da561c
+  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
 
 PODFILE CHECKSUM: 819463e6a0290f5a72f145ba7cde16e8b6ef0796
 

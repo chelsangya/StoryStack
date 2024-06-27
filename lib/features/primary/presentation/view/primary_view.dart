@@ -21,7 +21,7 @@ class _PrimaryViewState extends ConsumerState<PrimaryView> {
           bottomNavigationBar: SnakeNavigationBar.color(
             behaviour: SnakeBarBehaviour.floating,
             snakeShape: SnakeShape.indicator,
-            elevation: 5,
+            elevation: 10,
             selectedItemColor: const Color(0xFF0B2B3D),
             unselectedItemColor: Colors.grey[900]!,
             showSelectedLabels: true,

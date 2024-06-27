@@ -15,11 +15,11 @@ class ForumView extends StatelessWidget {
       body: ListView.builder(
         itemCount: 10,
         itemBuilder: (context, index) {
-          return _buildPostCard(context, index);
+          return _buildPostItem(context, index);
         },
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.teal[300],
+        backgroundColor: Colors.teal,
         onPressed: () {
           Navigator.of(context).pushNamed('/addPost');
         },
@@ -31,24 +31,16 @@ class ForumView extends StatelessWidget {
     );
   }
 
-  Widget _buildPostCard(BuildContext context, int index) {
+  Widget _buildPostItem(BuildContext context, int index) {
     String title = 'Post Title $index';
     String author = 'Author $index';
     String timestamp = '2 hours ago';
     String content =
         'This is the content of post $index. It can be quite long. This is the content of post $index. It can be quite long. This is the content of post $index. It can be quite long. This is the content of post $index. It can be quite long.This is the content of post $index. It can be quite long.This is the content of post $index. It can be quite long.This is the content of post $index. It can be quite long.This is the content of post $index. It can be quite long.This is the content of post $index. It can be quite long.This is the content of post $index. It can be quite long.This is the content of post $index. It can be quite long.This is the content of post $index. It can be quite long.';
     int commentCount = 5;
-    List<String> comments = [
-      'Comment 1',
-      'Comment 2',
-      'Comment 3',
-      'Comment 4'
-    ];
 
-    return Card(
-      margin:
-          const EdgeInsets.only(bottom: 3.0, top: 20, left: 16.0, right: 16),
-      elevation: 4.0,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       child: InkWell(
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(
@@ -58,11 +50,15 @@ class ForumView extends StatelessWidget {
               content: content,
               timestamp: timestamp,
               commentCount: commentCount,
-              comments: comments,
+              comments: const [],
             ),
           ));
         },
-        child: Padding(
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey),
+            borderRadius: BorderRadius.circular(12.0),
+          ),
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,27 +66,50 @@ class ForumView extends StatelessWidget {
               Text(
                 title,
                 style: const TextStyle(
-                    fontSize: 18.0, fontWeight: FontWeight.bold),
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8.0),
-              Text(
-                'By $author ',
-                style: const TextStyle(fontSize: 14.0, color: Colors.grey),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'By $author',
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                  ),
+                  const CircleAvatar(
+                    radius: 20,
+                    backgroundImage: AssetImage(
+                        'assets/avatars/Avatar 1.png'), // Replace 'assets/avatar.png' with your actual image path
+                  ),
+                ],
               ),
               const SizedBox(height: 8.0),
               Text(
                 content,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 16.0, color: Colors.grey[800]),
               ),
-              const SizedBox(height: 10.0),
+              const SizedBox(height: 8.0),
               Row(
                 children: [
                   const Icon(Icons.comment),
                   const SizedBox(width: 8.0),
-                  Text('$commentCount comments'),
+                  Text(
+                    '$commentCount comments',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const Spacer(),
-                  Text(timestamp),
+                  Text(
+                    timestamp,
+                    style: TextStyle(color: Colors.grey[700]),
+                  ),
                 ],
               ),
             ],

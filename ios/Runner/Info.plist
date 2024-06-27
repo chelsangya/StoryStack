@@ -12,6 +12,8 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Your app requires Face ID authentication to ensure the security of your account.</string>
 	<key>CFBundleName</key>
 	<string>story_stack</string>
 	<key>CFBundlePackageType</key>

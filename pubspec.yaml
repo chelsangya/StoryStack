@@ -51,6 +51,9 @@ dependencies:
 
   smooth_star_rating_null_safety: ^1.0.4+2
   animated_custom_dropdown: ^3.0.0
+  dropdown_button2: ^2.3.9
+  flutter_faq: ^1.0.1+1
+  local_auth_ios_credentials: ^1.0.12
 
 dev_dependencies:
   flutter_test:

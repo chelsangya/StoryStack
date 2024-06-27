@@ -117,7 +117,6 @@ class _DiscoverViewState extends State<DiscoverView> {
         _buildTabButton(0, 'Books', Icons.book),
         _buildTabButton(1, 'Series', Icons.playlist_play),
         _buildDropdown(),
-        // const SizedBox(width: 1)
       ],
     );
   }
@@ -305,8 +304,8 @@ class _DiscoverViewState extends State<DiscoverView> {
   }
 
   Widget _buildSeriesCard(dynamic seriesItem) {
-    final String overview = seriesItem['overview'] ?? '';
-    final List<dynamic> genresInt = seriesItem['genre_ids'];
+    final String overview = seriesItem['overview'];
+    final List<int> genresInt = List<int>.from(seriesItem['genre_ids']);
     final String language = seriesItem['original_language'];
     final String aired = seriesItem['first_air_date'];
 
@@ -374,7 +373,14 @@ class _DiscoverViewState extends State<DiscoverView> {
                     const SizedBox(height: 15),
                     Row(
                       children: [
-                        const Icon(Icons.star, color: Colors.amber),
+                        // const Icon(Icons.star, color: Colors.amber),
+                        const Icon(
+                          Icons.timer_outlined,
+                          color: Colors.black,
+                        ),
+                        const SizedBox(
+                          width: 5,
+                        ),
                         Text(
                           rating.toString(),
                           style: const TextStyle(fontWeight: FontWeight.bold),
@@ -415,20 +421,9 @@ class _DiscoverViewState extends State<DiscoverView> {
   }
 
   Widget _buildDropdownMenu(List<dynamic> genres) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15.0),
-        border: Border.all(
-          color: Colors.grey,
-          width: 2.0,
-        ),
-      ),
+    return DropdownButtonHideUnderline(
       child: DropdownButton<String>(
         dropdownColor: Colors.grey[100],
-        // menuMaxHeight: 500,
-        // itemHeight: 2,
         borderRadius: BorderRadius.circular(15.0),
         icon: const Icon(
           Icons.arrow_drop_down,
@@ -438,6 +433,7 @@ class _DiscoverViewState extends State<DiscoverView> {
         elevation: 16,
         style: const TextStyle(color: Colors.black, fontSize: 16),
         underline: const SizedBox(),
+        alignment: Alignment.center,
         value: _selectedTabIndex == 0 ? _selectedCategory : _selectedCategoryS,
         onChanged: (String? newValue) {
           setState(() {
@@ -449,14 +445,20 @@ class _DiscoverViewState extends State<DiscoverView> {
           });
         },
         items: _selectedTabIndex == 0
-            ? <String>['Fiction', 'Fantasy', 'Horror', 'Romance', 'Scifi']
+            ? <String>['fiction', 'fantasy', 'horror', 'romance', 'scifi']
                 .map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
-                  value: value.toLowerCase(),
+                  value: value,
                   child: Text(
                     value[0].toUpperCase() + value.substring(1),
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.black,
+                      fontWeight: (value.toLowerCase() ==
+                              (_selectedTabIndex == 0
+                                  ? _selectedCategory
+                                  : _selectedCategoryS))
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                     ),
                   ),
                 );
@@ -466,8 +468,14 @@ class _DiscoverViewState extends State<DiscoverView> {
                   value: item['id'].toString(),
                   child: Text(
                     item['name'],
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: Colors.black,
+                      fontWeight: (item['id'].toString() ==
+                              (_selectedTabIndex == 0
+                                  ? _selectedCategory
+                                  : _selectedCategoryS))
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                     ),
                   ),
                 );
