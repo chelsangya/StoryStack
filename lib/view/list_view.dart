@@ -3,24 +3,23 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:story_stack/config/routes/app_routes.dart';
 import 'package:story_stack/core/common/appbar/appbar.dart';
 import 'package:story_stack/core/shared_pref/user_shared_prefs.dart';
-import 'package:story_stack/view/book_details_view.dart';
-import 'package:story_stack/view/series_details_view.dart';
+import 'package:story_stack/view/edit_book_details_view.dart';
+import 'package:story_stack/view/edit_series_details_view.dart';
 
-class DiscoverView extends StatefulWidget {
-  const DiscoverView({super.key});
+class MyListView extends StatefulWidget {
+  const MyListView({super.key});
 
   @override
-  State<DiscoverView> createState() => _DiscoverViewState();
+  State<MyListView> createState() => _MyListViewState();
 }
 
-class _DiscoverViewState extends State<DiscoverView> {
-  late String _selectedCategory = 'All';
-  late String _selectedCategoryS = 'All';
+class _MyListViewState extends State<MyListView> {
   int _selectedTabIndex = 0;
 
-  Future<List<dynamic>> fetchBooks(String category) async {
+  Future<List<dynamic>> fetchUpcoming() async {
     String? token;
     var data = await UserSharedPrefs().getUserToken();
     data.fold((l) => token = null, (r) => token = r!);
@@ -35,62 +34,38 @@ class _DiscoverViewState extends State<DiscoverView> {
       return [];
     }
 
-    final response = await http.get(
-      Uri.parse('http://localhost:5500/api/books/get'),
-      headers: {
-        'Authorization': 'Bearer $token',
-      },
-    );
+    const String url = 'http://localhost:5500/api/list/get';
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = json.decode(response.body);
-      List<dynamic> books = data['bookData'] ?? [];
-      if (category != 'All') {
-        books = books
-            .where((book) =>
-                book['genre']?.toLowerCase() == category.toLowerCase())
-            .toList();
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        return data['list'] ?? [];
+      } else {
+        print('Error: ${response.body}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to load list'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return [];
       }
-      return books;
-    } else {
-      throw Exception('Failed to load books');
-    }
-  }
-
-  Future<List<dynamic>> fetchSeries(String genreId) async {
-    String? token;
-    var data = await UserSharedPrefs().getUserToken();
-    data.fold((l) => token = null, (r) => token = r!);
-
-    if (token == null) {
+    } catch (error) {
+      print('Error: $error');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please login first'),
+          content: Text('Network error'),
           backgroundColor: Colors.red,
         ),
       );
       return [];
-    }
-
-    final response = await http.get(
-      Uri.parse('http://localhost:5500/api/series/get'),
-      headers: {
-        'Authorization': 'Bearer $token',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = json.decode(response.body);
-      List<dynamic> series = data['seriessData'] ?? [];
-      if (genreId != 'All') {
-        series = series
-            .where((seriesItem) =>
-                seriesItem['genre']?.toLowerCase() == genreId.toLowerCase())
-            .toList();
-      }
-      return series;
-    } else {
-      throw Exception('Failed to load series');
     }
   }
 
@@ -101,7 +76,7 @@ class _DiscoverViewState extends State<DiscoverView> {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             const SizedBox(height: 10),
             _buildTabs(),
@@ -115,6 +90,7 @@ class _DiscoverViewState extends State<DiscoverView> {
                 ],
               ),
             ),
+            _buildAddManuallyButton(),
           ],
         ),
       ),
@@ -127,7 +103,6 @@ class _DiscoverViewState extends State<DiscoverView> {
       children: [
         _buildTabButton(0, 'Books', Icons.book),
         _buildTabButton(1, 'Series', Icons.playlist_play),
-        _buildDropdown(),
       ],
     );
   }
@@ -177,19 +152,23 @@ class _DiscoverViewState extends State<DiscoverView> {
 
   Widget _buildBooksTab() {
     return FutureBuilder<List<dynamic>>(
-      future: fetchBooks(_selectedCategory),
+      future: fetchUpcoming(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else {
-          final books = snapshot.data;
+          final upcomingData = snapshot.data;
+          final books =
+              upcomingData!.where((item) => item['book'] != null).toList();
           return ListView.builder(
-            itemCount: books!.length,
+            physics: const BouncingScrollPhysics(),
+            itemCount: books.length,
             itemBuilder: (context, index) {
-              final book = books[index];
-              return _buildBookCard(book);
+              final book = books[index]['book'];
+              final page = books[index]['page'] ?? 0;
+              return _buildBookCard(book, page);
             },
           );
         }
@@ -199,19 +178,24 @@ class _DiscoverViewState extends State<DiscoverView> {
 
   Widget _buildSeriesTab() {
     return FutureBuilder<List<dynamic>>(
-      future: fetchSeries(_selectedCategoryS),
+      future: fetchUpcoming(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else {
-          final series = snapshot.data;
+          final upcomingData = snapshot.data;
+          final series =
+              upcomingData!.where((item) => item['series'] != null).toList();
           return ListView.builder(
-            itemCount: series!.length,
+            itemCount: series.length,
             itemBuilder: (context, index) {
-              final seriesItem = series[index];
-              return _buildSeriesCard(seriesItem);
+              final seriesItem = series[index]['series'];
+              final fetchedseason = series[index]['season'] ?? 1;
+              final fetchedepisode = series[index]['episode'] ?? 1;
+              return _buildSeriesCard(
+                  seriesItem, fetchedseason, fetchedepisode);
             },
           );
         }
@@ -219,25 +203,24 @@ class _DiscoverViewState extends State<DiscoverView> {
     );
   }
 
-  Widget _buildBookCard(dynamic book) {
-    final double rating = (book['rating'] ?? 3.5).toDouble();
+  Widget _buildBookCard(dynamic book, int page) {
+    final String author = book['author'] ?? 'Unknown Author';
+    final String title = book['name'] ?? 'Untitled';
+    final String image =
+        book['bookImageUrl'] ?? 'https://via.placeholder.com/150';
+    final String description = book['description'] ?? '';
+    final double rating = book['rating']?.toDouble() ?? 0.0;
+    final String genre = book['genre'] ?? 'Unknown Genre';
+    final String language = book['language'] ?? 'Unknown Language';
 
     return Card(
       elevation: 4,
       margin: const EdgeInsets.symmetric(vertical: 10),
       child: InkWell(
         onTap: () {
-          final String id = book['_id'] ?? '';
-          final image = book['bookImageUrl'];
-          final title = book['name'];
-          final author = book['author'] ?? 'Unknown Author';
-          final description = book['description'] ?? '';
-          final genre = book['genre'] ?? '';
-          final language = book['language'] ?? '';
-          final totalChapter = book['totalChapter'] ?? 0;
           Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => BookDetailsView(
-              id: id,
+            builder: (context) => EditBookDetailsView(
+              id: book['_id'],
               title: title,
               image: image,
               author: author,
@@ -245,7 +228,8 @@ class _DiscoverViewState extends State<DiscoverView> {
               rating: rating,
               genre: genre,
               language: language,
-              totalChapter: totalChapter,
+              totalChapter: book['totalChapter'] ?? 0,
+              page: page,
             ),
           ));
         },
@@ -255,7 +239,7 @@ class _DiscoverViewState extends State<DiscoverView> {
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.network(
-                book['bookImageUrl'],
+                image,
                 width: 120,
                 height: 180,
                 fit: BoxFit.cover,
@@ -269,7 +253,7 @@ class _DiscoverViewState extends State<DiscoverView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      book['name'],
+                      title,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -279,15 +263,12 @@ class _DiscoverViewState extends State<DiscoverView> {
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      'By ${book['author']}',
+                      'By $author',
                       style: const TextStyle(fontSize: 14),
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      (book['description'] ?? '')
-                          .split('\n')
-                          .take(2)
-                          .join('\n'),
+                      description,
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -301,6 +282,7 @@ class _DiscoverViewState extends State<DiscoverView> {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 5),
                   ],
                 ),
               ),
@@ -311,13 +293,13 @@ class _DiscoverViewState extends State<DiscoverView> {
     );
   }
 
-  Widget _buildSeriesCard(dynamic seriesItem) {
-    final String overview = seriesItem['description'];
-    final String language = seriesItem['language'] ?? 'Unknown';
-    final List<String> words = overview.split(' ');
-    final String shortOverview =
-        words.length > 40 ? '${words.sublist(0, 40).join(' ')}...' : overview;
-    double rating = (seriesItem['rating'] ?? 7).toDouble();
+  Widget _buildSeriesCard(
+      dynamic seriesItem, int fetchedseason, int fetchedepisode) {
+    final String title = seriesItem['name'] ?? 'Untitled';
+    final String image =
+        seriesItem['seriesImageUrl'] ?? 'https://via.placeholder.com/150';
+    final String description = seriesItem['description'] ?? '';
+    final double rating = seriesItem['rating']?.toDouble() ?? 0.0;
     final DateTime createdAt = DateTime.parse(seriesItem['createdAt']);
     final String formattedDate = DateFormat('yyyy-MMM-dd').format(createdAt);
     final int season = seriesItem['season'] ?? 0;
@@ -328,25 +310,23 @@ class _DiscoverViewState extends State<DiscoverView> {
       margin: const EdgeInsets.symmetric(vertical: 10),
       child: InkWell(
         onTap: () {
-          final id = seriesItem['_id'];
-          final title = seriesItem['name'];
-          final image = seriesItem['seriesImageUrl'];
-          final description = shortOverview;
           Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => SeriesDetailsView(
-              id: id,
+            builder: (context) => EditSeriesDetailsView(
+              id: seriesItem['_id'],
               title: title,
               image: image,
               description: description,
               rating: rating,
               genres: seriesItem['genres']?.cast<int>() ?? [],
-              language: language,
+              language: seriesItem['language'] ?? '',
               airedOn: formattedDate,
-              season: season,
-              episode: episode,
               casts: (seriesItem['casts'] as List<dynamic>?)
                   ?.map((cast) => cast as Map<String, dynamic>)
                   .toList(),
+              season: season,
+              episode: episode,
+              fetchedseason: fetchedseason,
+              fetchedepisode: fetchedepisode,
             ),
           ));
         },
@@ -356,7 +336,7 @@ class _DiscoverViewState extends State<DiscoverView> {
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.network(
-                seriesItem['seriesImageUrl'],
+                image,
                 width: 120,
                 height: 180,
                 fit: BoxFit.cover,
@@ -370,7 +350,7 @@ class _DiscoverViewState extends State<DiscoverView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      seriesItem['name'],
+                      title,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -380,26 +360,22 @@ class _DiscoverViewState extends State<DiscoverView> {
                     ),
                     const SizedBox(height: 15),
                     Text(
-                      shortOverview,
+                      description,
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 15),
                     Row(
                       children: [
-                        const Icon(
-                          Icons.timer_outlined,
-                          color: Colors.black,
-                        ),
-                        const SizedBox(
-                          width: 5,
-                        ),
+                        const Icon(Icons.timelapse, color: Colors.amber),
+                        const SizedBox(width: 5),
                         Text(
                           formattedDate,
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
+                    const SizedBox(height: 5),
                   ],
                 ),
               ),
@@ -410,73 +386,40 @@ class _DiscoverViewState extends State<DiscoverView> {
     );
   }
 
-  Widget _buildDropdown() {
-    return DropdownButtonHideUnderline(
-      child: DropdownButton<String>(
-        dropdownColor: Colors.grey[100],
-        borderRadius: BorderRadius.circular(15.0),
-        icon: const Icon(
-          Icons.arrow_drop_down,
-          color: Colors.black,
+  Widget _buildAddManuallyButton() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10.0),
+      child: Center(
+        child: GestureDetector(
+          onTap: () {
+            Navigator.pushNamed(context, AppRoute.addManual);
+          },
+          child: const Column(
+            children: [
+              Align(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  'Didnot find your book?',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Text(
+                  'Add Manually',
+                  style: TextStyle(
+                    color: Colors.blue,
+                    fontSize: 16,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              )
+            ],
+          ),
         ),
-        iconSize: 30,
-        elevation: 16,
-        style: const TextStyle(color: Colors.black, fontSize: 16),
-        underline: const SizedBox(),
-        alignment: Alignment.center,
-        value: _selectedTabIndex == 0 ? _selectedCategory : _selectedCategoryS,
-        onChanged: (String? newValue) {
-          setState(() {
-            if (_selectedTabIndex == 0) {
-              _selectedCategory = newValue!;
-            } else {
-              _selectedCategoryS = newValue!;
-            }
-          });
-        },
-        items: _selectedTabIndex == 0
-            ? <String>[
-                'All',
-                'Fiction',
-                'Fantasy',
-                'Horror',
-                'Romance',
-                'Sci-fi'
-              ].map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(
-                    value[0].toUpperCase() + value.substring(1),
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: (value == _selectedCategory)
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                    ),
-                  ),
-                );
-              }).toList()
-            : <String>[
-                'All',
-                'Fiction',
-                'Fantasy',
-                'Horror',
-                'Romance',
-                'Sci-fi'
-              ].map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(
-                    value,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: (value == _selectedCategoryS)
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                    ),
-                  ),
-                );
-              }).toList(),
       ),
     );
   }

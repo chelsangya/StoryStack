@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:local_auth/local_auth.dart';
 import 'package:story_stack/core/common/appbar/internalappbar.dart';
+import 'package:story_stack/core/shared_pref/user_shared_prefs.dart';
 
 class EditProfileView extends StatefulWidget {
   const EditProfileView({super.key});
@@ -12,18 +16,17 @@ class EditProfileView extends StatefulWidget {
 class _EditProfileViewState extends State<EditProfileView> {
   final LocalAuthentication auth = LocalAuthentication();
   bool canAuthenticateWithBiometrics = false;
-
+  TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
 
   bool isNewPasswordVisible = false;
+  Map<String, dynamic>? _userData;
   bool isConfirmPasswordVisible = false;
 
   @override
   void initState() {
     super.initState();
-    checkBiometricAuthentication();
-    fetchUserDetails();
   }
 
   Future<void> checkBiometricAuthentication() async {
@@ -69,15 +72,97 @@ class _EditProfileViewState extends State<EditProfileView> {
     }
   }
 
-  Future<void> fetchUserDetails() async {
-    setState(() {
-      emailController.text = 'john.doe@example.com';
-      phoneController.text = '9806754321';
-    });
+  Future<void> editProfile(BuildContext context) async {
+    final String name = nameController.text;
+    final String email = emailController.text;
+    final String phone = phoneController.text;
+
+    if (email.isEmpty || phone.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fill all fields'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    String? token;
+    var data = await UserSharedPrefs().getUserToken();
+    data.fold((l) => token = null, (r) => token = r!);
+
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please login first'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    const url = 'http://localhost:5500/api/user/updateUser';
+    try {
+      final response = await http.put(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'name': name,
+          'email': email,
+          'phone': phone,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final responseBody = jsonDecode(response.body);
+
+        if (responseBody['success']) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('User edited successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content:
+                  Text('Failed to edit profile: ${responseBody['message']}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to edit profile: ${response.reasonPhrase}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('An error occurred: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final userData =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    if (userData != null) {
+      nameController.text = userData['name'] ?? '';
+      emailController.text = userData['email'] ?? '';
+      phoneController.text = userData['phone'] ?? '';
+    }
+
     return Scaffold(
       appBar: internalAppBar(context, 'Edit Profile'),
       body: SingleChildScrollView(
@@ -87,6 +172,14 @@ class _EditProfileViewState extends State<EditProfileView> {
           children: [
             const SizedBox(height: 50),
 
+            TextFormField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                labelText: 'Name',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 20),
             TextFormField(
               controller: emailController,
               decoration: const InputDecoration(
@@ -108,8 +201,8 @@ class _EditProfileViewState extends State<EditProfileView> {
             SizedBox(
               width: 400,
               child: ElevatedButton(
-                onPressed: () {
-                  _showConfirmationDialog(context);
+                onPressed: () async {
+                  await editProfile(context);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromRGBO(0, 128, 128, 1),

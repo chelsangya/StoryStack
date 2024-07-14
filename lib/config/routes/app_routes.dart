@@ -2,6 +2,7 @@ import 'package:story_stack/features/auth/presentation/view/signin_view.dart';
 import 'package:story_stack/features/auth/presentation/view/signup_view.dart';
 import 'package:story_stack/features/primary/presentation/view/primary_view.dart';
 import 'package:story_stack/view/about_us_view.dart';
+import 'package:story_stack/view/add_manual_book.dart';
 import 'package:story_stack/view/avatar_selection_view.dart';
 import 'package:story_stack/view/contact_us_view.dart';
 import 'package:story_stack/view/edit_password_view.dart';
@@ -35,6 +36,8 @@ class AppRoute {
   static const String faqRoute = '/faq';
   static const String aboutRoute = '/about';
   static const String contactRoute = '/contact';
+  static const String addManual = '/add-manual';
+
   static getApplicationRoute() {
     return {
       signinRoute: (context) => const SigninView(),
@@ -54,6 +57,7 @@ class AppRoute {
       faqRoute: (context) => const FaqView(),
       aboutRoute: (context) => const AboutUsView(),
       contactRoute: (context) => const ContactUsView(),
+      addManual: (context) => const AddManualBook(),
     };
   }
 }

@@ -6,7 +6,7 @@ import 'package:smooth_star_rating_null_safety/smooth_star_rating_null_safety.da
 import 'package:story_stack/core/common/appbar/internalappbar.dart';
 import 'package:story_stack/core/shared_pref/user_shared_prefs.dart';
 
-class SeriesDetailsView extends StatefulWidget {
+class EditSeriesDetailsView extends StatefulWidget {
   final String id;
   final String title;
   final String description;
@@ -18,8 +18,10 @@ class SeriesDetailsView extends StatefulWidget {
   final List<Map<String, dynamic>>? casts;
   final int season;
   final int episode;
+  final int? fetchedseason;
+  final int? fetchedepisode;
 
-  const SeriesDetailsView({
+  const EditSeriesDetailsView({
     super.key,
     required this.id,
     required this.title,
@@ -32,17 +34,19 @@ class SeriesDetailsView extends StatefulWidget {
     this.casts,
     required this.season,
     required this.episode,
+    this.fetchedseason,
+    this.fetchedepisode,
   });
 
   @override
-  State<SeriesDetailsView> createState() => _SeriesDetailsViewState();
+  State<EditSeriesDetailsView> createState() => _EditSeriesDetailsViewState();
 }
 
-class _SeriesDetailsViewState extends State<SeriesDetailsView> {
+class _EditSeriesDetailsViewState extends State<EditSeriesDetailsView> {
   int? selectedSeason;
   int? selectedEpisode;
 
-  Future<void> addToList() async {
+  Future<void> updateList() async {
     if (selectedSeason == null || selectedEpisode == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -67,7 +71,7 @@ class _SeriesDetailsViewState extends State<SeriesDetailsView> {
       return;
     }
 
-    const String url = 'http://localhost:5500/api/list/add';
+    const String url = 'http://localhost:5500/api/list/update';
     final Map<String, dynamic> body = {
       'seriesId': widget.id,
       'season': selectedSeason,
@@ -90,7 +94,7 @@ class _SeriesDetailsViewState extends State<SeriesDetailsView> {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Added to list successfully'),
+            content: Text('Updated list successfully'),
             backgroundColor: Colors.green,
           ),
         );
@@ -98,7 +102,7 @@ class _SeriesDetailsViewState extends State<SeriesDetailsView> {
         print('Error: ${response.body}');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Failed to add to list'),
+            content: Text('Failed to update list'),
             backgroundColor: Colors.red,
           ),
         );
@@ -112,6 +116,14 @@ class _SeriesDetailsViewState extends State<SeriesDetailsView> {
         ),
       );
     }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    selectedSeason = widget.fetchedseason;
+    selectedEpisode = widget.fetchedepisode;
   }
 
   @override
@@ -362,12 +374,12 @@ class _SeriesDetailsViewState extends State<SeriesDetailsView> {
                                 Colors.teal,
                               )),
                           onPressed: () async {
-                            await addToList();
+                            await updateList();
                             print(
                                 'Selected Season: $selectedSeason, Selected Episode: $selectedEpisode');
                             Navigator.of(context).pop();
                           },
-                          child: const Text('Add to List'),
+                          child: const Text('Update'),
                         ),
                       ],
                     ),
@@ -379,7 +391,7 @@ class _SeriesDetailsViewState extends State<SeriesDetailsView> {
         },
         backgroundColor: Colors.teal,
         foregroundColor: Colors.white,
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.edit),
       ),
     );
   }

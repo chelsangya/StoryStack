@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:local_auth/local_auth.dart';
 import 'package:story_stack/core/common/appbar/internalappbar.dart';
+import 'package:story_stack/core/shared_pref/user_shared_prefs.dart';
 import 'package:story_stack/core/widgets/my_password_field.dart';
 
 class EditPasswordView extends StatefulWidget {
@@ -13,9 +17,9 @@ class EditPasswordView extends StatefulWidget {
 class _EditPasswordViewState extends State<EditPasswordView> {
   final LocalAuthentication auth = LocalAuthentication();
   bool canAuthenticateWithBiometrics = false;
-  TextEditingController oldController = TextEditingController();
-  TextEditingController newController = TextEditingController();
-  TextEditingController confirmController = TextEditingController();
+  final oldController = TextEditingController();
+  final newController = TextEditingController();
+  final confirmController = TextEditingController();
   bool isPasswordVisible = false;
   bool isNewPasswordVisible = false;
   bool isConfirmPasswordVisible = false;
@@ -51,6 +55,85 @@ class _EditPasswordViewState extends State<EditPasswordView> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Authentication failed'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> editPassword(BuildContext context) async {
+    final String currentPassword = oldController.text;
+    final String newPassword = newController.text;
+
+    if (currentPassword.isEmpty || newPassword.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fill all fields'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    String? token;
+    var data = await UserSharedPrefs().getUserToken();
+    data.fold((l) => token = null, (r) => token = r!);
+
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please login first'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    const url = 'http://localhost:5500/api/user/updateUserPassword';
+    try {
+      final response = await http.put(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'currentPassword': currentPassword,
+          'newPassword': newPassword,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final responseBody = jsonDecode(response.body);
+
+        if (responseBody['success']) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('User password edited successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content:
+                  Text('Failed to edit profile: ${responseBody['message']}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to edit profile: ${response.reasonPhrase}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('An error occurred: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -269,7 +352,7 @@ class _EditPasswordViewState extends State<EditPasswordView> {
             ),
             ElevatedButton(
               onPressed: () {
-                updatePassword();
+                editPassword(context);
                 Navigator.of(context).pop();
               },
               style: ElevatedButton.styleFrom(

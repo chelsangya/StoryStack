@@ -6,47 +6,44 @@ import 'package:smooth_star_rating_null_safety/smooth_star_rating_null_safety.da
 import 'package:story_stack/core/common/appbar/internalappbar.dart';
 import 'package:story_stack/core/shared_pref/user_shared_prefs.dart';
 
-class SeriesDetailsView extends StatefulWidget {
+class EditBookDetailsView extends StatefulWidget {
   final String id;
   final String title;
+  final String author;
   final String description;
   final String image;
-  final String language;
-  final List<dynamic> genres;
-  final String airedOn;
   final double rating;
-  final List<Map<String, dynamic>>? casts;
-  final int season;
-  final int episode;
+  final String genre;
+  final String language;
+  final int totalChapter;
+  final int? page;
 
-  const SeriesDetailsView({
+  const EditBookDetailsView({
     super.key,
     required this.id,
     required this.title,
+    required this.author,
     required this.description,
     required this.image,
     required this.rating,
-    required this.genres,
+    required this.genre,
     required this.language,
-    required this.airedOn,
-    this.casts,
-    required this.season,
-    required this.episode,
+    required this.totalChapter,
+    this.page,
   });
 
   @override
-  State<SeriesDetailsView> createState() => _SeriesDetailsViewState();
+  State<EditBookDetailsView> createState() => _EditBookDetailsViewState();
 }
 
-class _SeriesDetailsViewState extends State<SeriesDetailsView> {
-  int? selectedSeason;
-  int? selectedEpisode;
+class _EditBookDetailsViewState extends State<EditBookDetailsView> {
+  int? selectedChapter;
 
-  Future<void> addToList() async {
-    if (selectedSeason == null || selectedEpisode == null) {
+  Future<void> updateList() async {
+    if (selectedChapter == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please select both season and episode'),
+          content: Text('Please select a chapter'),
           backgroundColor: Colors.red,
         ),
       );
@@ -67,11 +64,10 @@ class _SeriesDetailsViewState extends State<SeriesDetailsView> {
       return;
     }
 
-    const String url = 'http://localhost:5500/api/list/add';
+    const String url = 'http://localhost:5500/api/list/update';
     final Map<String, dynamic> body = {
-      'seriesId': widget.id,
-      'season': selectedSeason,
-      'episode': selectedEpisode,
+      'bookId': widget.id,
+      'page': selectedChapter,
     };
 
     try {
@@ -90,7 +86,7 @@ class _SeriesDetailsViewState extends State<SeriesDetailsView> {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Added to list successfully'),
+            content: Text('Updated list successfully'),
             backgroundColor: Colors.green,
           ),
         );
@@ -98,7 +94,7 @@ class _SeriesDetailsViewState extends State<SeriesDetailsView> {
         print('Error: ${response.body}');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Failed to add to list'),
+            content: Text('Failed to update list'),
             backgroundColor: Colors.red,
           ),
         );
@@ -115,14 +111,20 @@ class _SeriesDetailsViewState extends State<SeriesDetailsView> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    selectedChapter = widget.page;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: internalAppBar(context, 'Series Details'),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: SingleChildScrollView(
+      appBar: internalAppBar(context, 'Book Details'),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,7 +143,7 @@ class _SeriesDetailsViewState extends State<SeriesDetailsView> {
                         Text(
                           widget.title,
                           style: const TextStyle(
-                            fontSize: 18,
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -161,7 +163,7 @@ class _SeriesDetailsViewState extends State<SeriesDetailsView> {
                           spacing: 0.0,
                         ),
                         Text(
-                          '${widget.rating} rated by viewers.',
+                          '${widget.rating} rated by readers.',
                           style: const TextStyle(
                             fontSize: 16,
                           ),
@@ -170,13 +172,31 @@ class _SeriesDetailsViewState extends State<SeriesDetailsView> {
                           height: 10,
                         ),
                         Text(
-                          'Aired On: ${widget.airedOn}',
+                          'Author: ${widget.author}',
                           style: const TextStyle(
                             fontSize: 16,
                           ),
                         ),
                         const SizedBox(
-                          height: 5,
+                          height: 10,
+                        ),
+                        Text(
+                          'Genre: ${widget.genre}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          'Language: ${widget.language}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
                         ),
                       ],
                     ),
@@ -184,51 +204,32 @@ class _SeriesDetailsViewState extends State<SeriesDetailsView> {
                 ],
               ),
               const SizedBox(
-                height: 10,
-              ),
-              Text(
-                widget.description,
-                style: const TextStyle(fontSize: 18),
-              ),
-              const SizedBox(
                 height: 20,
               ),
-              const Text(
-                'Cast',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+              SizedBox(
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Description',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      widget.description,
+                      style: const TextStyle(
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              if (widget.casts != null && widget.casts!.isNotEmpty)
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: widget.casts!.map((cast) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Image.network(
-                              cast['castImageUrl'],
-                              fit: BoxFit.cover,
-                              width: 150,
-                              height: 150,
-                            ),
-                            const SizedBox(height: 5),
-                            Text(cast['name']),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              if (widget.casts == null || widget.casts!.isEmpty)
-                const Text('No cast information available.'),
+              )
             ],
           ),
         ),
@@ -241,7 +242,6 @@ class _SeriesDetailsViewState extends State<SeriesDetailsView> {
               return StatefulBuilder(
                 builder: (BuildContext context, StateSetter setModalState) {
                   return Container(
-                    width: double.infinity,
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -268,7 +268,20 @@ class _SeriesDetailsViewState extends State<SeriesDetailsView> {
                           spacing: 0.0,
                         ),
                         Text(
-                          '${widget.rating} rated by viewers.',
+                          '${widget.rating} rated by readers.',
+                          style: const TextStyle(
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Author(s): ${widget.author}',
+                          style: const TextStyle(
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          'Genre: ${widget.genre}',
                           style: const TextStyle(
                             fontSize: 16,
                           ),
@@ -282,7 +295,7 @@ class _SeriesDetailsViewState extends State<SeriesDetailsView> {
                         ),
                         const SizedBox(height: 20),
                         const Text(
-                          'Seasons',
+                          'Chapter',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -292,21 +305,22 @@ class _SeriesDetailsViewState extends State<SeriesDetailsView> {
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Row(
-                            children: List.generate(widget.season, (index) {
-                              bool isSelected = selectedSeason == index + 1;
+                            children:
+                                List.generate(widget.totalChapter, (index) {
+                              bool isSelected = selectedChapter == index + 1;
                               return Padding(
                                 padding: const EdgeInsets.all(4.0),
                                 child: ElevatedButton(
                                   onPressed: () {
                                     setModalState(() {
-                                      selectedSeason =
+                                      selectedChapter =
                                           isSelected ? null : index + 1;
-                                      selectedEpisode = null;
                                     });
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    foregroundColor:
-                                        isSelected ? Colors.white : null,
+                                    foregroundColor: isSelected
+                                        ? Colors.white
+                                        : Colors.black,
                                     backgroundColor:
                                         isSelected ? Colors.teal : null,
                                   ),
@@ -316,43 +330,6 @@ class _SeriesDetailsViewState extends State<SeriesDetailsView> {
                             }),
                           ),
                         ),
-                        if (selectedSeason != null) ...[
-                          const SizedBox(height: 20),
-                          const Text(
-                            'Episodes',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: List.generate(widget.episode, (index) {
-                                bool isSelected = selectedEpisode == index + 1;
-                                return Padding(
-                                  padding: const EdgeInsets.all(4.0),
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      setModalState(() {
-                                        selectedEpisode =
-                                            isSelected ? null : index + 1;
-                                      });
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      foregroundColor:
-                                          isSelected ? Colors.white : null,
-                                      backgroundColor:
-                                          isSelected ? Colors.teal : null,
-                                    ),
-                                    child: Text('${index + 1}'),
-                                  ),
-                                );
-                              }),
-                            ),
-                          ),
-                        ],
                         const SizedBox(height: 20),
                         ElevatedButton(
                           style: ButtonStyle(
@@ -362,12 +339,10 @@ class _SeriesDetailsViewState extends State<SeriesDetailsView> {
                                 Colors.teal,
                               )),
                           onPressed: () async {
-                            await addToList();
-                            print(
-                                'Selected Season: $selectedSeason, Selected Episode: $selectedEpisode');
+                            await updateList();
                             Navigator.of(context).pop();
                           },
-                          child: const Text('Add to List'),
+                          child: const Text('Update'),
                         ),
                       ],
                     ),
@@ -379,7 +354,7 @@ class _SeriesDetailsViewState extends State<SeriesDetailsView> {
         },
         backgroundColor: Colors.teal,
         foregroundColor: Colors.white,
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.edit),
       ),
     );
   }

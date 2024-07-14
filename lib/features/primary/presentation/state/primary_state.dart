@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:story_stack/features/primary/presentation/view/discover_view.dart';
+import 'package:story_stack/view/list_view.dart';
 import 'package:story_stack/view/profile_view.dart';
+import 'package:story_stack/view/upcoming_view.dart';
 
 class PrimaryState {
   final int index;
@@ -22,13 +24,9 @@ class PrimaryState {
         lstWidgets = [
           const DiscoverView(),
 
+          const UpcomingView(),
+          const MyListView(),
           const ProfileView(),
-          const ProfileView(),
-          const ProfileView(),
-
-          // const FavouritesView(),
-          // const BookingsView(),
-          // const SettingsView(),
         ];
 
   // CopyWith function to change the index no

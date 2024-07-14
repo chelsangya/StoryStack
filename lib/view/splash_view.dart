@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:story_stack/config/routes/app_routes.dart';
+import 'package:story_stack/core/shared_pref/user_shared_prefs.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _SplashViewState createState() => _SplashViewState();
 }
 
@@ -24,9 +25,19 @@ class _SplashViewState extends State<SplashView>
 
     _controller.forward();
 
-    _controller.addStatusListener((status) {
+    _controller.addStatusListener((status) async {
       if (status == AnimationStatus.completed) {
-        Navigator.of(context).pushReplacementNamed('/select');
+        String? token;
+        var data = await UserSharedPrefs().getUserToken();
+        if (data.isRight()) {
+          token = data.getOrElse(() => null);
+        }
+
+        if (token == null) {
+          Navigator.of(context).pushReplacementNamed(AppRoute.signinRoute);
+        } else {
+          Navigator.of(context).pushReplacementNamed(AppRoute.homeRoute);
+        }
       }
     });
   }

@@ -1,4 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:story_stack/config/routes/app_routes.dart';
+import 'package:story_stack/core/shared_pref/user_shared_prefs.dart';
 
 class SigninView extends StatefulWidget {
   const SigninView({super.key});
@@ -10,6 +15,8 @@ class SigninView extends StatefulWidget {
 class _SigninViewState extends State<SigninView> {
   bool _rememberMe = false;
   bool _passwordVisible = false;
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
 
   void _togglePasswordVisibility() {
     setState(() {
@@ -19,6 +26,54 @@ class _SigninViewState extends State<SigninView> {
 
   @override
   Widget build(BuildContext context) {
+    Future<void> login(BuildContext context) async {
+      final String email = emailController.text;
+      final String password = passwordController.text;
+
+      if (email.isEmpty || password.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please fill all fields'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      const url = 'http://localhost:5500/api/user/login';
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'password': password}),
+      );
+
+      if (response.statusCode == 200) {
+        final responseBody = jsonDecode(response.body);
+        final token = responseBody['token'];
+        final userData = responseBody['userData'];
+
+        await UserSharedPrefs().setUser(userData);
+        await UserSharedPrefs().setUserToken(token);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Logged in successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        Navigator.of(context).pushNamed(AppRoute.homeRoute);
+      } else {
+        final responseBody = jsonDecode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Login failed: ${responseBody['message']}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+
     return Scaffold(
       // fffbff
       body: Stack(
@@ -62,6 +117,7 @@ class _SigninViewState extends State<SigninView> {
                     children: [
                       const SizedBox(height: 20),
                       TextFormField(
+                        controller: emailController,
                         decoration: const InputDecoration(
                           labelText: 'Email',
                           hintText: 'johndoe@gmail.com',
@@ -80,6 +136,7 @@ class _SigninViewState extends State<SigninView> {
                       ),
                       const SizedBox(height: 20),
                       TextFormField(
+                        controller: passwordController,
                         decoration: InputDecoration(
                           labelText: 'Password',
                           hintText: '********',
@@ -146,13 +203,14 @@ class _SigninViewState extends State<SigninView> {
                         width: 400,
                         child: ElevatedButton(
                           onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Logging in...'),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                            Navigator.of(context).pushNamed('/home');
+                            login(context);
+                            // ScaffoldMessenger.of(context).showSnackBar(
+                            //   const SnackBar(
+                            //     content: Text('Logging in...'),
+                            //     backgroundColor: Colors.green,
+                            //   ),
+                            // );
+                            // Navigator.of(context).pushNamed('/home');
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor:
@@ -182,7 +240,8 @@ class _SigninViewState extends State<SigninView> {
                           ),
                           TextButton(
                             onPressed: () {
-                              Navigator.of(context).pushNamed('/signup');
+                              Navigator.of(context)
+                                  .pushNamed(AppRoute.signupRoute);
                             },
                             child: const Text(
                               'Register',

@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show ByteData, rootBundle;
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:path/path.dart' as path;
+import 'package:story_stack/config/routes/app_routes.dart';
 
 class AvatarSelectionView extends StatefulWidget {
   const AvatarSelectionView({super.key});
@@ -20,6 +25,112 @@ class _AvatarSelectionViewState extends State<AvatarSelectionView> {
 
   @override
   Widget build(BuildContext context) {
+    final Map<String, String> args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, String>;
+
+    final String? name = args['name'];
+    final String? email = args['email'];
+    final String? phone = args['phone'];
+    final String? password = args['password'];
+
+    Future<void> registerUser() async {
+      const String url = 'http://localhost:5500/api/user/registerUser';
+      final Map<String, String> requestData = {
+        'name': name!,
+        'email': email!,
+        'phone': phone!,
+        'password': password!,
+      };
+
+      try {
+        var request = http.MultipartRequest('POST', Uri.parse(url));
+        request.headers['Content-Type'] = 'multipart/form-data';
+        request.fields.addAll(requestData);
+
+        if (_selectedAvatar != null) {
+          ByteData byteData = await rootBundle.load(_selectedAvatar!);
+          List<int> imageData = byteData.buffer.asUint8List();
+
+          request.files.add(http.MultipartFile.fromBytes(
+            'userImage',
+            imageData,
+            filename: path.basename(_selectedAvatar!),
+            contentType: MediaType('image', 'png'),
+          ));
+        }
+
+        var response = await request.send();
+
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('User Registered Successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.of(context).pushNamed(AppRoute.signinRoute);
+        } else {
+          var responseData = await response.stream.bytesToString();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Registration Failed: $responseData'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('An error occurred: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+
+    void showTermsDialog(BuildContext context) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Terms of Use"),
+            content: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'By clicking "CONTINUE", you agree to the following Terms of Use:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8),
+
+                Text(
+                  'By accessing or using the BookMark application, you agree to be bound by these Terms of Use. If you do not agree with any part of these terms, you may not use the application.',
+                  style: TextStyle(fontWeight: FontWeight.normal),
+                ),
+                // Add more terms here as needed
+              ],
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  await registerUser();
+                },
+                child: const Text('Agree'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -141,7 +252,7 @@ class _AvatarSelectionViewState extends State<AvatarSelectionView> {
         padding: const EdgeInsets.only(left: 20, right: 20, bottom: 25),
         child: ElevatedButton(
           onPressed: () {
-            _showTermsDialog(context);
+            showTermsDialog(context);
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color.fromRGBO(0, 128, 128, 1),
@@ -158,55 +269,6 @@ class _AvatarSelectionViewState extends State<AvatarSelectionView> {
               )),
         ),
       ),
-    );
-  }
-
-  void _showTermsDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Terms of Use"),
-          content: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'By clicking "CONTINUE", you agree to the following Terms of Use:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8),
-
-              Text(
-                'By accessing or using the BookMark application, you agree to be bound by these Terms of Use. If you do not agree with any part of these terms, you may not use the application.',
-                style: TextStyle(fontWeight: FontWeight.normal),
-              ),
-              // Add more terms here as needed
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('User Registered'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-                Navigator.of(context).pushNamed('/login');
-              },
-              child: const Text('Agree'),
-            ),
-          ],
-        );
-      },
     );
   }
 }

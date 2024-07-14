@@ -1,20 +1,23 @@
 import 'dart:convert';
 
 import 'package:dartz/dartz.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:nanny_booking/core/failure/failure.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-final userSharedPrefsProvider = Provider<UserSharedPrefs>((ref) {
-  return UserSharedPrefs();
-});
+import 'package:story_stack/core/failure/failure.dart';
 
 class UserSharedPrefs {
+  static final UserSharedPrefs _instance = UserSharedPrefs._internal();
+  factory UserSharedPrefs() => _instance;
+
+  UserSharedPrefs._internal();
+
   late SharedPreferences _sharedPreferences;
+
+  Future<void> init() async {
+    _sharedPreferences = await SharedPreferences.getInstance();
+  }
 
   Future<Either<Failure, bool>> setUserToken(String token) async {
     try {
-      _sharedPreferences = await SharedPreferences.getInstance();
       await _sharedPreferences.setString('token', token);
       return right(true);
     } catch (e) {
@@ -24,7 +27,6 @@ class UserSharedPrefs {
 
   Future<Either<Failure, String?>> getUserToken() async {
     try {
-      _sharedPreferences = await SharedPreferences.getInstance();
       final token = _sharedPreferences.getString('token');
       return right(token);
     } catch (e) {
@@ -34,7 +36,6 @@ class UserSharedPrefs {
 
   Future<Either<Failure, bool>> deleteUserToken() async {
     try {
-      _sharedPreferences = await SharedPreferences.getInstance();
       await _sharedPreferences.remove('token');
       return right(true);
     } catch (e) {
@@ -44,7 +45,6 @@ class UserSharedPrefs {
 
   Future<bool> setUser(Map<String, dynamic> user) async {
     try {
-      _sharedPreferences = await SharedPreferences.getInstance();
       String userDataString = jsonEncode(user);
       await _sharedPreferences.setString('user', userDataString);
       return true;
@@ -55,7 +55,6 @@ class UserSharedPrefs {
 
   Future<Map<String, dynamic>?> getUser() async {
     try {
-      _sharedPreferences = await SharedPreferences.getInstance();
       String? userDataString = _sharedPreferences.getString('user');
 
       if (userDataString == null || userDataString.isEmpty) {
@@ -68,9 +67,9 @@ class UserSharedPrefs {
       return null;
     }
   }
+
   Future<bool> deleteUser() async {
     try {
-      _sharedPreferences = await SharedPreferences.getInstance();
       await _sharedPreferences.remove('user');
       return true;
     } catch (e) {

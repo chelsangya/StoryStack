@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:story_stack/config/routes/app_routes.dart';
 import 'package:story_stack/core/common/appbar/internalappbar.dart';
+import 'package:story_stack/core/shared_pref/user_shared_prefs.dart';
 
 class NewPostView extends StatefulWidget {
   const NewPostView({super.key});
@@ -28,6 +33,85 @@ class _NewPostViewState extends State<NewPostView> {
 
   @override
   Widget build(BuildContext context) {
+    Future<void> addPost(BuildContext context) async {
+      final String title = _titleController.text;
+      final String content = _contentController.text;
+
+      if (title.isEmpty || content.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please fill all fields'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      String? token;
+      var data = await UserSharedPrefs().getUserToken();
+      data.fold((l) => token = null, (r) => token = r!);
+
+      if (token == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please login first'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      const url = 'http://localhost:5500/api/post/add';
+      try {
+        final response = await http.post(
+          Uri.parse(url),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({
+            'title': title,
+            'description': content,
+          }),
+        );
+
+        if (response.statusCode == 200) {
+          final responseBody = jsonDecode(response.body);
+
+          if (responseBody['success']) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Post added successfully'),
+                backgroundColor: Colors.green,
+              ),
+            );
+            Navigator.pushNamed(context, AppRoute.forumRoute);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Failed to add post: ${responseBody['message']}'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to add post: ${response.reasonPhrase}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('An error occurred: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+
     return Scaffold(
       appBar: internalAppBar(context, "New Post"),
       body: Padding(
@@ -75,7 +159,7 @@ class _NewPostViewState extends State<NewPostView> {
               width: 400,
               child: ElevatedButton(
                 onPressed: () {
-                  // TODO: Save Post
+                  addPost(context);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromRGBO(0, 128, 128, 1),
